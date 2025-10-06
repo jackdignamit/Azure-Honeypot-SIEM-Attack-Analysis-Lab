@@ -9,7 +9,7 @@ Inspired by [Josh Madakor's tutorial](https://youtu.be/g5JL2RIbThM?si=Mmk_O8heRL
 
 This project showcases how I established a cloud-based honeypot VM in Azure and sent brute-force attempt logs to a SIEM workspace. 
 The workspace was integrated into Microsoft Sentinel to identify failed login attempts, conduct geolocation IP filtering, and visualize source locations on a live attack map. 
-I then wrote KQL queries for event filtering, analyzing, and alert creation; acquiring hands-on experience in SIEM operations, log analytics, and security monitoring.
+I wrote KQL queries for event filtering, analyzing, and alert creation; acquiring hands-on experience in SIEM operations, log analytics, and security monitoring.
 
 ### **Platforms and Technology Used:** 
 Azure VMs, SIEM (Microsoft Sentinel), KQL, Log Analytics, Data visualization, Networking & firewall configuration, Geolocation IP filtering
@@ -61,10 +61,10 @@ Open **Event Viewer -> Windows Logs -> Security** to view incoming failed login 
 
 ---
 
-### 4️⃣ Create LAW and link to Microsoft Sentinel
+### 4️⃣ Create a Log Analytics Workspace and link to Microsoft Sentinel
 1. Create both a new **Log Analytics Workspace (LAW)** and **Microsoft Sentinel** workspace under your resource group.
 
-   _The Log Analytics Workspace will act as a centralized storage and analysis hub for incoming logs from your VM. Microsoft Sentinel adds threat detection, alerting, and visualization capabilities. Feel free to export its built-in workbooks and analytic rules._
+   _The Log Analytics Workspace will act as a centralized storage and analysis hub for incoming logs from your VM. Microsoft Sentinel adds threat detection, alerting, and visualization capabilities. Feel free to explore its built-in workbooks and analytic rules._
    
 3. On Microsoft Sentinel, **add the previously created Log Analytics Workspace.** This links the LAW to its respective SIEM.
 4. Under **Content Management > Content Hub** search for and install Windows Security Events.
@@ -79,4 +79,7 @@ _Azure Monitoring Agent (AMA) allows all security events from the Windows machin
 ---
 
 ### 5️⃣ Query for logs within the LAW
-1. Observe some of the ingested logs using KQL filters.
+1. Observe some of the ingested logs using KQL filters. To start, input **"SecurityEvent"** in a new query and press run. It will output all security related logs.
+<img width="1760" height="1088" alt="Screenshot 2025-10-03 154830" src="https://github.com/user-attachments/assets/8b94f1cb-2230-4abc-ac2d-430aaff2b521" />
+
+2. 
