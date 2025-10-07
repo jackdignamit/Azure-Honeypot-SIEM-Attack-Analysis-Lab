@@ -1,4 +1,4 @@
-# 🌐 Azure Honeypot & SIEM Attack Analysis Home Lab
+# Azure Honeypot & SIEM Attack Analysis Home Lab
 This project walks through how I built a cloud-based cybersecurity home lab using **Microsoft Sentinel** with Azure virtual machines to detect and display attack data. 
 
 Inspired by [Josh Madakor's tutorial](https://youtu.be/g5JL2RIbThM?si=Mmk_O8heRLS_-SU1), I followed along and then expanded on it with hands-on exploration and insights.
@@ -91,7 +91,7 @@ _Azure Monitoring Agent (AMA) allows all security events from the Windows machin
 1. Observe some of the ingested logs using KQL filters. To start, input **"SecurityEvent"** in a new query and press run. It will output all security related logs.
 <img width="1760" height="1088" alt="Screenshot 2025-10-03 154830" src="https://github.com/user-attachments/assets/8b94f1cb-2230-4abc-ac2d-430aaff2b521" />
 
-2. To filter for attacker's failed login alerts, set **| where EventID == 4625**. You can further filter using Account, TimeGenerated, Computer, Activity, and IpAddress information using a pipe under "project".
+2. To filter for attacker's failed login alerts, set **| where EventID == 4625** under SecurityEvent. You can also filter using Account, TimeGenerated, Computer, Activity, and IpAddress information using a pipe under the field named "project".
 _The pipe passes the result of one command as input to the next command._
 
 **SecurityEvent   
@@ -129,6 +129,7 @@ _(insert a random attacker IP address)_
 3. You can freely adjust colors, bubble sizes, etc under **map settings** in the edit query tab.
       
 <img width="2492" height="1185" alt="Screenshot 2025-10-03 161740" src="https://github.com/user-attachments/assets/aa9130d9-a3d1-400d-9452-4a95026fbb21" />
+<img width="1516" height="1055" alt="Screenshot 2025-10-03 161843" src="https://github.com/user-attachments/assets/66b1c857-afdf-43dc-99ad-086705b424b4" />
 <img width="267" height="67" alt="image" src="https://github.com/user-attachments/assets/c1c8dcee-7cce-4281-b79f-324f5b1ab027" />
 
 _Attacks from a 20 minute period_
@@ -136,10 +137,15 @@ _Attacks from a 20 minute period_
 ---
 
 ## Future Improvements
-
+- Utilize Azure Functions or Logic apps to automate elements like the enrichment process
+- Implement more data sources such as firewall logs, threat intelligence feeds, etc.
+- Add custom Sentinel alerts for specific attack signatures
+- Integerate Power BI or Grafana for improved map visualizations
 ---
 
 ## Reflection
+This project showed me how active the **internet threat landscape** is. A simple exposed VM became a global target in a matter of minutes with **over 35,000 brute-force attempts**. 
+It also deepened my understanding of **KQL filtering** methods such as **log pipelines**, **data enrichment**, and **SIEM workflows**. These are all essential skills for anyone pursuing a **SOC analyst** or **threat detection** position in cybersecurity.
 
 ---
 
