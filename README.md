@@ -132,8 +132,6 @@ _(insert a random attacker IP address)_
 <img width="1516" height="1055" alt="Screenshot 2025-10-03 161843" src="https://github.com/user-attachments/assets/66b1c857-afdf-43dc-99ad-086705b424b4" />
 <img width="267" height="67" alt="image" src="https://github.com/user-attachments/assets/c1c8dcee-7cce-4281-b79f-324f5b1ab027" />
 
-_Attacks from a 20 minute period_
-
 ---
 
 ## Future Improvements
