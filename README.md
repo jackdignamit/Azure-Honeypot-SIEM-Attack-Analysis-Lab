@@ -1,7 +1,8 @@
 # Azure Honeypot & SIEM Attack Analysis Home Lab
 This project walks through how I built a cloud-based cybersecurity home lab using **Microsoft Sentinel** with Azure virtual machines to detect and display attack data. 
 
-Inspired by [Josh Madakor's tutorial](https://youtu.be/g5JL2RIbThM?si=Mmk_O8heRLS_-SU1), I followed along and then expanded on it with hands-on exploration and insights.
+Tutorial by [Josh Madakor](https://www.youtube.com/@JoshMadakor).  
+All implementation, exploration, and documentation performed independently as part of my cybersecurity learning journey.
 
 ---
 
@@ -146,7 +147,3 @@ This project showed me how active the **internet threat landscape** is. A simple
 It also deepened my understanding of **KQL filtering** methods such as **log pipelines**, **data enrichment**, and **SIEM workflows**. These are all essential skills for anyone pursuing a **SOC analyst** or **threat detection** position in cybersecurity.
 
 ---
-
-## Credits
-Tutorial by [Josh Madakor](https://www.youtube.com/@JoshMadakor).  
-All implementation, exploration, and documentation performed independently as part of my cybersecurity learning journey.
