@@ -27,7 +27,7 @@ I wrote KQL queries for event filtering, analyzing, and alert creation; acquirin
 
 # Architecture Diagram
 
-## INSERT IMAGE HERE SOON!
+<img width="1630" height="887" alt="image" src="https://github.com/user-attachments/assets/3617b247-b68e-483c-a922-9f4c8235f9b2" />
 
   1) Internet Attackers discover and attempt to login to Azure VM Honeypot
   2) Failed login attempts are captured in Windows Event Logs
