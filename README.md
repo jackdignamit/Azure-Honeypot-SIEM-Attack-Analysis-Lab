@@ -1,8 +1,8 @@
-# Azure Honeypot & SIEM Attack Analysis Home Lab
-This project walks through how I built a cloud-based cybersecurity home lab using **Microsoft Sentinel** with Azure virtual machines to detect and display attack data. 
+# Azure Honeypot & SIEM Attack-Analysis Home Lab
+This project explains how I built a cloud-based cybersecurity home lab using **Microsoft Sentinel** with an Azure virtual machine to detect and display attack data. 
 
-Tutorial by [Josh Madakor](https://www.youtube.com/@JoshMadakor).  
-All implementation, exploration, and documentation performed independently as part of my cybersecurity learning journey.
+Based on a tutorial by [Josh Madakor](https://www.youtube.com/@JoshMadakor).  
+All implementation, exploration, and documentation conducted independently as part of my cybersecurity learning journey.
 
 ---
 
@@ -32,7 +32,7 @@ I wrote KQL queries for event filtering, analyzing, and alert creation; acquirin
 
   1) Internet Attackers discover and attempt to login to Azure VM Honeypot
   2) Failed login attempts are captured in Windows Event Logs
-  3) Windows Event Logs are funneled into Log Analytics Workspace
+  3) Windows Event Logs are funneled into a Log Analytics Workspace
   4) Microsoft Sentinel with KQL Filters use the workspace to create an attack map visualization
 
 ---
@@ -48,8 +48,9 @@ I wrote KQL queries for event filtering, analyzing, and alert creation; acquirin
 
 ### 2️⃣ Setup and deploy the Honeypot VM
 1. Create a **Windows 10 Pro Server VM** (2 vcpus, 8 GiB memory).
-2. **SETUP A STRONG PASSWORD.** Use letters (uppercase/lowercase) with numbers, symbols, and minimum 10-15 characters.
-3. Configure an **inbound port rule** in the VM's network security group (NSG) that exposes **RDP (port 3389)** and **SSH (port 22)** to the internet.
+2. **Set up a strong password.** Use letters (uppercase/lowercase) with numbers, symbols, and minimum 10-15 characters.
+3. Configure an **inbound port rule** in the VM's network security group (NSG) that exposes **RDP (port 3389)** to the internet.
+     - Remote Desktop Protocol (RDP) lets a user view and interact with a remote computer's desktop.
 
   <img width="2117" height="701" alt="image" src="https://github.com/user-attachments/assets/fc6ea4bc-10b2-492c-8b10-f71073122189" />
 
@@ -57,13 +58,15 @@ I wrote KQL queries for event filtering, analyzing, and alert creation; acquirin
 
   <img width="890" height="497" alt="image" src="https://github.com/user-attachments/assets/9928fefc-cdcd-40d0-89af-0113444d1348" />
 
-  _(This intentionally exposes the VM to attract brute-force attempts. This is safe in isolation but visible to attackers scanning open ports.)_
+This configuraton intentionally exposes the VM to the public internet for educational purposes only, allowing observation of real-world brute-force activity.
 
-**Wait 15-30 minutes or more to allow attackers to trigger event logs.**
+> Security Disclaimer: This lab is deployed in an isolated Azure environment with no personal data. Exposed services should be avoided in real-world production environments.
 
 ---
 
 ### 3️⃣ Observe Local Logs
+**After deployment, attack traffic is not immediate. Brute-force attempts typically begin appearing within several hours to a day after exposing RDP, depending on automated scanning activity.**
+
 Open **Event Viewer -> Windows Logs -> Security** to view incoming failed login attempts **(Event ID 4625)**. Here you can view attempted usernames, IPs, and timestamps.
 
 <img width="2027" height="1045" alt="image" src="https://github.com/user-attachments/assets/d45f99df-15b1-431f-8bfb-2ae1d7db8226" />
@@ -89,35 +92,35 @@ _Azure Monitoring Agent (AMA) allows all security events from the Windows machin
 ---
 
 ### 5️⃣ Query for logs within the LAW
-1. Observe some of the ingested logs using KQL filters. To start, input **"SecurityEvent"** in a new query and press run. It will output all security related logs.
+1. Observe some of the ingested logs using KQL filters. To start, enter **"SecurityEvent"** in a new query and press "Run". It will output all security related logs.
 <img width="1760" height="1088" alt="Screenshot 2025-10-03 154830" src="https://github.com/user-attachments/assets/8b94f1cb-2230-4abc-ac2d-430aaff2b521" />
 
 2. To filter for attacker's failed login alerts, set **| where EventID == 4625** under SecurityEvent. You can also filter using Account, TimeGenerated, Computer, Activity, and IpAddress information using a pipe under the field named "project".
 _The pipe passes the result of one command as input to the next command._
-
-**SecurityEvent   
-    | where EventId == 4625**  
-
+```
+SecurityEvent   
+    | where EventId == 4625  
+```
 <img width="1740" height="1074" alt="Screenshot 2025-10-03 160646" src="https://github.com/user-attachments/assets/ee578e70-a62c-47b0-b485-c634de4c44e9" />
 
 ---
 
 ### 6️⃣ Enrich Logs with Geolocation Data
-1. The LAW does not include the table option to filter by geolocation. The table must be implemented into Sentinel first. To do this, download this spreadsheet from Google Drive: [geoip-summarized.csv](https://drive.google.com/file/d/13EfjM_4BohrmaxqXZLB5VUBIz2sv9Siz/view)
+1. The LAW does not include a native geolocation table. A custom table containing IP-to-geolocation mappings needs to be imported into Sentinel first. To do this, download this spreadsheet from Google Drive: [geoip-summarized.csv](https://drive.google.com/file/d/13EfjM_4BohrmaxqXZLB5VUBIz2sv9Siz/view)
   
      _alternative link: https://raw.githubusercontent.com/joshmadakor1/lognpacific-public/refs/heads/main/misc/geoip-summarized.csv_
 
 2. Within Sentinel, create the watchlist titled **"geoip"** as a local file with the search key **"network"** and upload the above .csv spreadsheet.
 3. Using KQL, you can now filter utilizing the watchlist table:
-
-**let GeoIPDB_FULL = _GetWatchlist("geoip");**  
-**let WindowsEvents = SecurityEvent    
+```
+let GeoIPDB_FULL = _GetWatchlist("geoip");  
+let WindowsEvents = SecurityEvent    
     | where IpAddress == (attacker IP address)  
     | where EventID == 4625  
     | order by TimeGenerated desc  
-    | evaluate ipv4_lookup(GeoIPDB_FULL, IpAddress, network);**  
-**WindowsEvents**
-
+    | evaluate ipv4_lookup(GeoIPDB_FULL, IpAddress, network);  
+WindowsEvents
+```
 _(insert a random attacker IP address)_
 
 <img width="1745" height="1066" alt="Screenshot 2025-10-03 161308" src="https://github.com/user-attachments/assets/3675d345-7197-4f44-813e-ce3c20a7c6a9" />
@@ -126,12 +129,50 @@ _(insert a random attacker IP address)_
 
 ### 7️⃣ Build the Attack Map in Sentinel
 1. On a new tab, go to Sentinel and create a new workbook that will be our attack map.
-2. Add a query and paste [this JSON code](https://drive.google.com/file/d/1ErlVEK5cQjpGyOcu4T02xYy7F31dWuir/view?usp=drive_link) into the advanced editor.
+2. Add a query and paste the following JSON code into the advanced editor:
+```
+{
+	"type": 3,
+	"content": {
+	"version": "KqlItem/1.0",
+	"query": "let GeoIPDB_FULL = _GetWatchlist(\"geoip\");\nlet WindowsEvents = SecurityEvent;\nWindowsEvents | where EventID == 4625\n| order by TimeGenerated desc\n| evaluate ipv4_lookup(GeoIPDB_FULL, IpAddress, network)\n| summarize FailureCount = count() by IpAddress, latitude, longitude, cityname, countryname\n| project FailureCount, AttackerIp = IpAddress, latitude, longitude, city = cityname, country = countryname,\nfriendly_location = strcat(cityname, \" (\", countryname, \")\");",
+	"size": 3,
+	"timeContext": {
+		"durationMs": 2592000000
+	},
+	"queryType": 0,
+	"resourceType": "microsoft.operationalinsights/workspaces",
+	"visualization": "map",
+	"mapSettings": {
+		"locInfo": "LatLong",
+		"locInfoColumn": "countryname",
+		"latitude": "latitude",
+		"longitude": "longitude",
+		"sizeSettings": "FailureCount",
+		"sizeAggregation": "Sum",
+		"opacity": 0.8,
+		"labelSettings": "friendly_location",
+		"legendMetric": "FailureCount",
+		"legendAggregation": "Sum",
+		"itemColorSettings": {
+		"nodeColorField": "FailureCount",
+		"colorAggregation": "Sum",
+		"type": "heatmap",
+		"heatmapPalette": "greenRed"
+		}
+	}
+	},
+	"name": "query - 0"
+}
+```
 3. You can freely adjust colors, bubble sizes, etc under **map settings** in the edit query tab.
-      
+
+**Like I discussed earlier, attack traffic isn't immediate. Brute-force attempts appearing may take several hours to a day after exposal to the internet. 
+I ran mine for around 30 minutes and these were my results:**
+
+<img width="267" height="67" alt="image" src="https://github.com/user-attachments/assets/c1c8dcee-7cce-4281-b79f-324f5b1ab027" />
 <img width="2492" height="1185" alt="Screenshot 2025-10-03 161740" src="https://github.com/user-attachments/assets/aa9130d9-a3d1-400d-9452-4a95026fbb21" />
 <img width="1516" height="1055" alt="Screenshot 2025-10-03 161843" src="https://github.com/user-attachments/assets/66b1c857-afdf-43dc-99ad-086705b424b4" />
-<img width="267" height="67" alt="image" src="https://github.com/user-attachments/assets/c1c8dcee-7cce-4281-b79f-324f5b1ab027" />
 
 ---
 
@@ -139,11 +180,24 @@ _(insert a random attacker IP address)_
 - Utilize Azure Functions or Logic apps to automate elements like the enrichment process
 - Implement more data sources such as firewall logs, threat intelligence feeds, etc.
 - Add custom Sentinel alerts for specific attack signatures
-- Integerate Power BI or Grafana for improved map visualizations
+- Integrate Power BI or Grafana for improved map visualizations
+
+---
+
+## Skills Demonstrated
+- Azure virtual machine deployment
+- Microsoft Sentinel SIEM configuration
+- Windows Event Log analysis
+- KQL querying and filtering
+- Geolocation enrichment of security events
+- Cloud security monitoring fundamentals
+
 ---
 
 ## Reflection
 This project showed me how active the **internet threat landscape** is. A simple exposed VM became a global target in a matter of minutes with **over 35,000 brute-force attempts**. 
 It also deepened my understanding of **KQL filtering** methods such as **log pipelines**, **data enrichment**, and **SIEM workflows**. These are all essential skills for anyone pursuing a **SOC analyst** or **threat detection** position in cybersecurity.
+
+**Thank you for reading and checking out my project!**
 
 ---
